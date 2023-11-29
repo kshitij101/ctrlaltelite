@@ -17,9 +17,40 @@
 
 const asyncHandler = require("express-async-handler");
 var spawn = require('child_process').spawn;
+const tf = require('@tensorflow/tfjs');
+const fs = require('fs');
+const modelPath = 'C:/Users/ACER/OneDrive/Documents/CtrlAltEliteProject/backend/bert_model.h5';
+
+async function loadModel() {
+  const model = await tf.loadLayersModel('bert_model.h5');
+  console.log('Model loaded successfully');
+  return model;
+}
+
+async function predict(inputData) {
+  const model = await loadModel();
+  const predictions = model.predict(inputData);
+  console.log('Predictions:', predictions.arraySync());
+  tf.dispose(model);
+}
 
 
 const classifyMessage = asyncHandler(async (req, res) => {
+  predict([[101,2017,2024,4485,102,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+,0,0,0,0]]);
   try {
     const process = spawn('python',["C:/Users/ACER/OneDrive/Documents/CtrlAltEliteProject/backend/script.py", 
                             "Kshitij"] );
