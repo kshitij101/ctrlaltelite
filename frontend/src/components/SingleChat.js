@@ -24,13 +24,31 @@ const colors = ['green','blue','yellow','orange','red'];
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isClassifying,setisClassifying] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const [barValue, setBarValue] = useState(0);
   const [messageClass,setMessageClass] = useState(0);
+  const [isMessageToxic,setIsMessageToxic] = useState(0);
   const [isError,setMessageError] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      console.log(searchTerm)
+      // Send Axios request here
+      if(newMessage.length > 0 && isClassifying == false) {
+        await classifyMessage()
+        const newPosition= Math.min((parseInt(messageClass))-1, colors.length - 1);
+        setBarValue(newPosition);
+      }
+      // const newPosition = Math.min((parseInt(e.target.value.length)-1), colors.length - 1);
+    },500 )
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [searchTerm])
 
   const toast = useToast();
 
@@ -55,10 +73,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         },
       };
 
-      // setLoading(true);
+      setLoading(true);
+      setisClassifying(true)
+      console.log("---",loading)
 
-      const { data } = await axios.get(
-        `/api/classify`,
+      const { data } = await axios.post(
+        `/api/classify/`,{message: newMessage},
         config
       );
       // setMessages(data);
@@ -71,15 +91,23 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       if(isToxic > 0.5){
         if(data.class.includes('severe-toxic')){
           setMessageError(true)
+          setIsMessageToxic(true)
+        }
+        if(isToxic > 0.8){
+          setMessageError(true)
+          setIsMessageToxic(true)
         }
         setMessageClass(toxicClasses.indexOf(data.class.split(" ")[1].split("\r")[0]))
       }
       else{
+        setMessageError(false)
+        setIsMessageToxic(false)
         setMessageClass(0)
       }
 
         // return toxicClass
-      // setLoading(false);
+      setisClassifying(false)
+      setLoading(false);
 
     } catch (error) {
       console.log(error);
@@ -144,7 +172,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
+    if (newMessage) {
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -158,7 +186,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           "/api/message",
           {
             content: newMessage,
-            toxicClass: messageClass,
+            toxicClass: isMessageToxic ? 0 : messageClass,
             chatId: selectedChat,
           },
           config
@@ -179,7 +207,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const CustomProgressBar = ({value}) => {
-    const colors = ['blue.400', 'teal.400', 'green.400', 'yellow.400', 'orange.400', 'red.400']
+    const colors = ['blue.400', 'teal.400', 'yellow.400', 'orange.400', 'red.400']
     const toxicClasses = ['obscene', 'threat', 'insult', 'identity-hate','severe-toxic']
     const classification = messageClass
     console.log("Classification ---- ",classification)
@@ -251,6 +279,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   });
 
   const typingHandler = async (e) => {
+    setBarValue(0);
+    setMessageError(false)
     setNewMessage(e.target.value);
 
     if (!socketConnected) return;
@@ -272,11 +302,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // const newValue = parseInt(e.target.value.length)-1;
     // const newValue =  Math.floor(Math.random() * (5 - 1 + 1) + 1)
     // console.log(newValue,colors[newValue]);
-    await classifyMessage()
     // const newPosition = Math.min((parseInt(e.target.value.length)-1), colors.length - 1);
-    const newPosition = Math.min((parseInt(messageClass)-1), colors.length - 1);
-    setBarValue(newPosition);
+    
     // setArrowPosition(newPosition);
+
+    // await classifyMessage()
+    // const newPosition = Math.min((parseInt(messageClass)-1), colors.length - 1);
+    // setBarValue(newPosition);
+
+    setSearchTerm(e.target.value)
   };
 
   return (
@@ -342,8 +376,27 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
 
+            {/* {loading ? 
+              (isClassifying ? 
+                (
+                  <Box>
+                    <Spinner size="xl" w={20} h={20} alignSelf="center" margin="auto" /> 
+                    <Text fontSize='2xl'>Classigying your message</Text>
+                  </Box>
+                ) : 
+                (
+                  <Spinner size="xl" w={20} h={20} alignSelf="center" margin="auto" /> 
+                )
+              ) : 
+              (
+                <div className="messages"> 
+                  <ScrollableChat messages={messages} /> 
+                </div> 
+              )
+            } */}
+
             <FormControl
-              onKeyDown={sendMessage}
+              // onKeyDown={sendMessage}
               id="first-name"
               isRequired
               mt={3}
@@ -361,7 +414,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <></>
               )}
               {/* <ProgressBar value={barValue} /> */}
-              <CustomProgressBar value={barValue} />
+              {isClassifying ? (<Text textAlign="center" fontSize='2xl'>Classifying your message</Text>) : (<CustomProgressBar value={barValue} />)}
               <Flex justify="space-between">
                 <Input
                   variant="filled"
@@ -373,7 +426,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   borderWidth={isError ? '2px' : '0px'}
                 />
                 <Tooltip label="Not Allowed to send message classified as Severe Toxic" isOpen={isError} placement="top">
-                  <Button isDisabled={isError} onClick={sendMessage}> Send </Button>
+                  <Button isDisabled={isError || isClassifying} onClick={sendMessage}> Send </Button>
                 </Tooltip>
               </Flex>
             </FormControl>

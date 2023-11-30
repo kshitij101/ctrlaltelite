@@ -12,8 +12,8 @@ import { ChatState } from "../Context/ChatProvider";
 const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
   
-  const colors = ['red', 'orange', 'yellow', 'green', 'teal', 'blue']
-  const toxicClasses = ['good','bad','worse','worst','warning','Can\'t send this']
+  const colors = ['blue', 'teal', 'yellow', 'orange', 'red']
+  const toxicClasses = ['obscene', 'threat', 'insult', 'identity-hate','severe-toxic']
 
   return (
     <ScrollableFeed>
@@ -33,7 +33,27 @@ const ScrollableChat = ({ messages }) => {
                 />
               </Tooltip>
             )}
-            <Tooltip label={toxicClasses[m.toxicClass]} placement="left" hasArrow>
+            
+            {(m.toxicClass > 0) ? (
+              <Tooltip label={toxicClasses[m.toxicClass]} placement="left" hasArrow>
+                <span
+                  style={{
+                    backgroundColor: `${
+                      m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
+                    }`,
+                    marginLeft: isSameSenderMargin(messages, m, i, user._id),
+                    marginTop: isSameUser(messages, m, i, user._id) ? 3 : 10,
+                    borderRadius: "20px",
+                    padding: "5px 15px",
+                    maxWidth: "75%",
+                    outline: `1px solid ${colors[m.toxicClass]}`,
+                    marginBottom: "10px"
+                  }}
+                >
+                  {m.content}
+                </span>
+              </Tooltip>
+            ) : (
               <span
                 style={{
                   backgroundColor: `${
@@ -44,13 +64,13 @@ const ScrollableChat = ({ messages }) => {
                   borderRadius: "20px",
                   padding: "5px 15px",
                   maxWidth: "75%",
-                  outline: `1px solid ${colors[m.toxicClass]}`,
+                  outline: (m.toxicClass > 0) ? `1px solid ${colors[m.toxicClass]}` : "none",
                   marginBottom: "10px"
                 }}
               >
                 {m.content}
               </span>
-            </Tooltip>
+            )}
           </div>
         ))}
     </ScrollableFeed>
