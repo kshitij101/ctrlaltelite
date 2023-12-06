@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npm install --legacy-peer-deps && npm install --legacy-peer-deps --prefix frontend && npm run build --prefix frontend",
     "start": "nodemon backend/server.js",
-    "server": "nodemon backend/server.js"
+    "server": "nodemon backend/server.js",
+    "test": "node --no-deprecation ./node_modules/jest/bin/jest.js"
   },
   "keywords": [
     "mern",
@@ -28,5 +29,9 @@
     "react-icons": "^4.12.0",
     "socket.io": "^4.1.2",
     "tfjs-node-save": "^0.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   }
 }
