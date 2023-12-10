@@ -24,7 +24,9 @@ def multi_label_accuracy(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     exact_matches = tf.cast(exact_matches, tf.float32)
     return tf.math.reduce_mean(exact_matches)
 MAX_LENGTH = 200
-model = load_model(f"C:/Users/ACER/OneDrive/Documents/CtrlAltEliteProject/backend/bert_model.h5",
+dir_name = os.path.dirname(__file__)
+relative_path = os.path.join(dir_name, 'bert_model.h5')
+model = load_model(relative_path,
                    custom_objects={"multi_label_accuracy": multi_label_accuracy})
 tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
 # print(0.82,'severe-toxic')

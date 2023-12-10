@@ -6,7 +6,7 @@ const fs = require('fs');
 const classifyMessage = asyncHandler(async (req, res) => {
   try {
     // predict()
-    const process = spawn('python',["C:/Users/ACER/OneDrive/Documents/CtrlAltEliteProject/backend/script.py", 
+    const process = spawn('python',["backend\\script.py", 
                           req.body.message] );
     
     // process.stdout.on('data', (data) => {
