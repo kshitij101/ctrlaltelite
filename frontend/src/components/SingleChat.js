@@ -29,26 +29,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
   const [istyping, setIsTyping] = useState(false);
-  const [barValue, setBarValue] = useState(0);
+  // const [barValue, setBarValue] = useState(0);
   const [messageClass,setMessageClass] = useState(0);
   const [isMessageToxic,setIsMessageToxic] = useState(0);
   const [isError,setMessageError] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('')
+  // const [searchTerm, setSearchTerm] = useState('')
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      console.log(searchTerm)
-      // Send Axios request here
-      if(newMessage.length > 0 && isClassifying == false) {
-        await classifyMessage()
-        const newPosition= Math.min((parseInt(messageClass))-1, colors.length - 1);
-        setBarValue(newPosition);
-      }
-      // const newPosition = Math.min((parseInt(e.target.value.length)-1), colors.length - 1);
-    },500 )
+  // useEffect(() => {
+  //   const delayDebounceFn = setTimeout(async () => {
+  //     console.log(searchTerm)
+  //     // Send Axios request here
+  //     if(newMessage.length > 0 && isClassifying == false) {
+  //       // await classifyMessage()
+  //       const newPosition= Math.min((parseInt(messageClass))-1, colors.length - 1);
+  //       // setBarValue(newPosition);
+  //     }
+  //     // const newPosition = Math.min((parseInt(e.target.value.length)-1), colors.length - 1);
+  //   },500 )
 
-    return () => clearTimeout(delayDebounceFn)
-  }, [searchTerm])
+  //   return () => clearTimeout(delayDebounceFn)
+  // }, [searchTerm])
 
   const toast = useToast();
 
@@ -60,67 +60,66 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       preserveAspectRatio: "xMidYMid slice",
     },
   };
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
-    ChatState();
+  const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
 
-  const classifyMessage = async () => {
-    const toxicClasses = ['obscene', 'threat', 'insult', 'identity-hate','severe-toxic']
+  // const classifyMessage = async () => {
+  //   const toxicClasses = ['obscene', 'threat', 'insult', 'identity-hate','severe-toxic']
 
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      };
+  //   try {
+  //     const config = {
+  //       headers: {
+  //         Authorization: `Bearer ${user.token}`,
+  //       },
+  //     };
 
-      setLoading(true);
-      setisClassifying(true)
-      console.log("---",loading)
+  //     setLoading(true);
+  //     setisClassifying(true)
+  //     console.log("---",loading)
 
-      const { data } = await axios.post(
-        `/api/classify/`,{message: newMessage},
-        config
-      );
-      // setMessages(data);
-      // let toxicClass = data.class.split("\n")[1]
-      // console.log("Message Class", toxicClass);
-      // console.log(toxicClasses.indexOf(data.class.split(" ")[1].split("\r")[0]))
-      // console.log(parseFloat(data.class.split(" ")[0]))
-      // console.log(data.class.includes('severe-toxic'))
-      let isToxic = parseFloat(data.class.split(" ")[0])
-      if(isToxic > 0.5){
-        if(data.class.includes('severe-toxic')){
-          setMessageError(true)
-          setIsMessageToxic(true)
-        }
-        if(isToxic > 0.8){
-          setMessageError(true)
-          setIsMessageToxic(true)
-        }
-        setMessageClass(toxicClasses.indexOf(data.class.split(" ")[1].split("\r")[0]))
-      }
-      else{
-        setMessageError(false)
-        setIsMessageToxic(false)
-        setMessageClass(0)
-      }
+  //     const { data } = await axios.post(
+  //       `/api/classify/`,{message: newMessage},
+  //       config
+  //     );
+  //     // setMessages(data);
+  //     // let toxicClass = data.class.split("\n")[1]
+  //     // console.log("Message Class", toxicClass);
+  //     // console.log(toxicClasses.indexOf(data.class.split(" ")[1].split("\r")[0]))
+  //     // console.log(parseFloat(data.class.split(" ")[0]))
+  //     // console.log(data.class.includes('severe-toxic'))
+  //     let isToxic = parseFloat(data.class.split(" ")[0])
+  //     if(isToxic > 0.5){
+  //       if(data.class.includes('severe-toxic')){
+  //         setMessageError(true)
+  //         setIsMessageToxic(true)
+  //       }
+  //       if(isToxic > 0.8){
+  //         setMessageError(true)
+  //         setIsMessageToxic(true)
+  //       }
+  //       setMessageClass(toxicClasses.indexOf(data.class.split(" ")[1].split("\r")[0]))
+  //     }
+  //     else{
+  //       setMessageError(false)
+  //       setIsMessageToxic(false)
+  //       setMessageClass(0)
+  //     }
 
-        // return toxicClass
-      setisClassifying(false)
-      setLoading(false);
+  //       // return toxicClass
+  //     setisClassifying(false)
+  //     setLoading(false);
 
-    } catch (error) {
-      console.log(error);
-      toast({
-        title: "Error Occured!",
-        description: "Failed to Classify the Messages",
-        status: "error",
-        duration: 6000,
-        isClosable: true,
-        position: "bottom",
-      });
-    }
-  };
+  //   } catch (error) {
+  //     console.log(error);
+  //     toast({
+  //       title: "Error Occured!",
+  //       description: "Failed to Classify the Messages",
+  //       status: "error",
+  //       duration: 6000,
+  //       isClosable: true,
+  //       position: "bottom",
+  //     });
+  //   }
+  // };
 
   const handleSearch = async () => {
     try {
@@ -279,7 +278,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   });
 
   const typingHandler = async (e) => {
-    setBarValue(0);
+    // setBarValue(0);
     setMessageError(false)
     setNewMessage(e.target.value);
 
@@ -289,16 +288,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setTyping(true);
       socket.emit("typing", selectedChat._id);
     }
-    let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
-    setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
-      if (timeDiff >= timerLength && typing) {
-        socket.emit("stop typing", selectedChat._id);
-        setTyping(false);
-      }
-    }, timerLength);
+    // let lastTypingTime = new Date().getTime();
+    // var timerLength = 3000;
+    // setTimeout(() => {
+    //   var timeNow = new Date().getTime();
+    //   var timeDiff = timeNow - lastTypingTime;
+    //   if (timeDiff >= timerLength && typing) {
+    //     socket.emit("stop typing", selectedChat._id);
+    //     setTyping(false);
+    //   }
+    // }, timerLength);
     // const newValue = parseInt(e.target.value.length)-1;
     // const newValue =  Math.floor(Math.random() * (5 - 1 + 1) + 1)
     // console.log(newValue,colors[newValue]);
@@ -310,7 +309,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // const newPosition = Math.min((parseInt(messageClass)-1), colors.length - 1);
     // setBarValue(newPosition);
 
-    setSearchTerm(e.target.value)
+    // setSearchTerm(e.target.value)
   };
 
   return (
@@ -414,7 +413,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <></>
               )}
               {/* <ProgressBar value={barValue} /> */}
-              {isClassifying ? (<Text textAlign="center" fontSize='2xl'>Classifying your message</Text>) : (<CustomProgressBar value={barValue} />)}
+              {/* {isClassifying ? (<Text textAlign="center" fontSize='2xl'>Classifying your message</Text>) : (<CustomProgressBar value={barValue} />)} */}
               <Flex justify="space-between">
                 <Input
                   variant="filled"
